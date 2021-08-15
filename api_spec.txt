@@ -1,0 +1,21 @@
+first, we need a Species object that contains the following fields
+
+number SpeciesId: this is a unique identifier for the Species object
+boolean IsEndangered
+string CommonName
+string ScientificName
+number EstimatedPopulation: the type of "number" should be dependent on the dataset as well. As an extreme example, Pelagibacter ubique is thought to be the most abundant species on earth, and there are about 2 * 10^28 of them alive, according to wikipedia
+
+next, we need a function called getEndangeredSpeciesList that returns a list of Species objects
+
+The basic implementation of getEndangeredSpeciesList would require no input params, and would return all Species instances where IsEndagered is true. If there are enough records, this would get quite unwieldy. In that case, we would want to pass some parameters into getEndangeredSpeciesList to narrow the result set. 
+
+One example of how to trim down the result set is with an entity SpeciesQueryParams
+
+SpeciesQueryParams could contain different fields depending on how the data will be used. some examples are as follows
+string? CommonNameSearchText: a trimmed, case-insensitive search would be performed on Species.CommonName, and only those Species objects containing this value would be returned. the "?" after string is to denote that this is not a required field
+string? ScientificNameSearchText: same as CommonNameSearchText, but for Species.ScientificName
+boolean EndangeredOnly: this allows SpeciesQueryParams to be used more generically than our current endpoint, which would set EndangeredOnly to true. If EndangeredOnly is set to true, the resultset will only contains Species where Species.IsEndangered = true. EndangeredOnly would be set to false by default.
+string? OrderByFieldName: this would determine how to sort our result set. if, for instance, the presentation layer contains a list that the user wants to sort by common name, we would pass the string "CommonName" here, and our service layer would set the resulting database query to sort by Species.CommonName. The default would be to order by ID if we needed a consistent default ordering. If we did not need a consistent default ordering, the default would be null. Null would not append and sorting to the resultant database query
+number? PageSize: this could be used in tandem with PageNumber and OrderByFieldName. The idea here is that we return paginated resulted. PageSize determines the max amount of records we return per call. if we have enough records to require pagination, the default PageSize would depend on the complexity of the data, and perhaps the most common use-case of the frontend. Generally, I would set a default PageSize around 25.
+number? PageNumber: this could be used in tandem with PageSize and OrderByFieldName. The idea here is that we return paginated resulted. PageNumber determines how many records to "skip" before getting the next "PageSize" count of records. By "skipping", I mean we would order our resultset based on OrderByFieldName, then skip "PageSize*PageNumber" records before returning our result. The default PageNumber value would be 0.
