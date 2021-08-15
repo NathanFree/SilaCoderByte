@@ -15,8 +15,7 @@ class EmailAddress(models.Model):
     address = models.CharField(max_length = 50)
     user = models.ForeignKey(
        'User', 
-       null=True, 
-       on_delete=models.SET_NULL,
+       on_delete=models.RESTRICT,
        max_length=64)
 
     class Meta:
